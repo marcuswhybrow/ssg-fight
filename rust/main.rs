@@ -1,26 +1,27 @@
-use serde::Serialize;
+use tera::Tera;
+use tera::Context;
+use std::fs;
 
-use tinytemplate::TinyTemplate;
-use std::error::Error;
-
-#[derive(Serialize)]
-struct Context {
-    name: String,
-}
-
-
-static TEMPLATE : &'static str = "Hello {name}!";
-
-pub fn main() -> Result<(), Box<dyn Error>> {
-    let mut tt = TinyTemplate::new();
-    tt.add_template("hello", TEMPLATE)?;
-
-    let context = Context {
-        name: "World Marcus".to_string(),
+pub fn main() -> std::io::Result<()> {
+    let tera = match Tera::new("templates/**/*.html") {
+        Ok(t) => t,
+        Err(e) => {
+            println!("Parsing error(s): {}", e);
+            ::std::process::exit(1);
+        }
     };
 
-    let rendered = tt.render("hello", &context)?;
-    println!("{}", rendered);
+    let mut context = Context::new();
+    context.insert("content", "Hello there!");
+
+    fs::remove_dir_all("build")?;
+    fs::create_dir("build")?;
+    let file = fs::File::create("build/index.html")?;
+
+    match tera.render_to("base.html", &context, &file) {
+        Ok(_) => println!("Rendered to"),
+        Err(e) => println!("Error: {}", e)
+    };
 
     Ok(())
 }
