@@ -1,3 +1,26 @@
-fn main() {
-    println!("Hello World!");
+use serde::Serialize;
+
+use tinytemplate::TinyTemplate;
+use std::error::Error;
+
+#[derive(Serialize)]
+struct Context {
+    name: String,
+}
+
+
+static TEMPLATE : &'static str = "Hello {name}!";
+
+pub fn main() -> Result<(), Box<dyn Error>> {
+    let mut tt = TinyTemplate::new();
+    tt.add_template("hello", TEMPLATE)?;
+
+    let context = Context {
+        name: "World Marcus".to_string(),
+    };
+
+    let rendered = tt.render("hello", &context)?;
+    println!("{}", rendered);
+
+    Ok(())
 }

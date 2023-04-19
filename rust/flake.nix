@@ -1,7 +1,9 @@
 {
   description = "Static Site Generator written in Rust";
 
-  inputs.cargo2nix.url = "github:cargo2nix/cargo2nix";
+  inputs.rust-overlay.url = "github:oxalica/rust-overlay";
+  inputs.cargo2nix.url = "github:cargo2nix/cargo2nix/unstable";
+  inputs.cargo2nix.inputs.rust-overlay.follows = "rust-overlay";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.nixpkgs.follows = "cargo2nix/nixpkgs";
 
@@ -11,8 +13,10 @@
       overlays = [ cargo2nix.overlays.default ];
     };
 
+    # https://github.com/cargo2nix/cargo2nix#arguments-to-makepackageset
     rustPkgs = pkgs.rustBuilder.makePackageSet {
-      rustVersion = "1.61.0";
+      rustVersion = "1.68.2";
+      rustChannel = "stable";
       packageFun = import ./Cargo.nix;
     };
   in {
